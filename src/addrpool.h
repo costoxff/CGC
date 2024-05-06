@@ -1,3 +1,6 @@
+#ifndef __ADDR_POOL_H__
+#define __ADDR_POOL_H__
+
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -105,3 +108,5 @@ static inline int address_pool_empty(struct address_pool *pool)
 {
     return pool->size == 0;
 }
+
+#endif
