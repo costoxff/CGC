@@ -7,14 +7,18 @@
 #include <assert.h>
 
 #define ADDR_POOL_INIT_SIZE 64UL
+#define NULL_ADDR 0UL
+
+#define addr_valid(addr) ((addr) != NULL_ADDR)
+#define addr_invalid(addr) ((addr) == NULL_ADDR)
 
 /*
  * use less 4 bit of address to record if the index of array is valid
 */
-#define set_bit_invalid(addr) ((addr) |= 1UL)
-#define set_bit_valid(addr) ((addr) &= (~0UL << 1))
-#define get_bit_invalid(addr) ((addr) & 1UL)
-#define get_real_addr(addr) ((addr) & (~0UL << 1)) // 64 bit address
+// #define set_bit_invalid(addr) ((addr) |= 1UL)
+// #define set_bit_valid(addr) ((addr) &= (~0UL << 1))
+// #define get_bit_invalid(addr) ((addr) & 1UL)
+// #define get_real_addr(addr) ((addr) & (~0UL << 1)) // 64 bit address
 
 struct address_pool {
     size_t size;
@@ -26,17 +30,17 @@ static int address_pool_create(struct address_pool **pool);
 static int address_pool_destroy(struct address_pool **pool);
 static void address_pool_push(struct address_pool *pool, size_t addr);
 static size_t address_pool_pop(struct address_pool *pool, size_t index);
-static void address_pool_resize(struct address_pool *pool);
+static void _address_pool_resize(struct address_pool *pool);
 
 static inline int address_pool_empty(struct address_pool *pool);
 
 
 static int address_pool_create(struct address_pool **pool)
 {
-    *pool = (struct address_pool *)malloc(sizeof(struct address_pool));
+    *pool = (struct address_pool *) malloc(sizeof(struct address_pool));
     (*pool)->size = 0;
     (*pool)->capacity = ADDR_POOL_INIT_SIZE;
-    (*pool)->addrs = (size_t *)malloc(sizeof(size_t) * ADDR_POOL_INIT_SIZE);
+    (*pool)->addrs = (size_t *)calloc(ADDR_POOL_INIT_SIZE, sizeof(size_t));
 
     printf("address pool create, done\n");
     return 0;
@@ -46,7 +50,7 @@ static int address_pool_destroy(struct address_pool **pool)
 {
     for (size_t i = 0; i < (*pool)->size; i++) {
         size_t addr = address_pool_pop(*pool, i);
-        if (get_bit_invalid(addr))
+        if (addr_valid(addr))
             free((void *)addr);
     }
     free((*pool)->addrs);
@@ -61,11 +65,10 @@ static void address_pool_push(struct address_pool *pool, size_t addr)
 {
     size_t *addrs = pool->addrs;
 
-    address_pool_resize(pool);
+    _address_pool_resize(pool);
 
-    set_bit_invalid(addr);
     for (size_t i = 0; i < pool->size; i++) {
-        if (!get_bit_invalid(addrs[i])) {
+        if (addr_valid(addr)) {
             addrs[i] = addr;
             return;
         }
@@ -75,13 +78,14 @@ static void address_pool_push(struct address_pool *pool, size_t addr)
 
 static size_t address_pool_pop(struct address_pool *pool, size_t index)
 {
-    size_t *addrs = pool->addrs;
+    size_t *addrs = pool->addrs, ret_addr;
 
-    set_bit_valid(addrs[index]);
-    return get_real_addr(addrs[index]);
+    ret_addr = addrs[index];
+    addrs[index] = NULL_ADDR;
+    return ret_addr;
 }
 
-static void address_pool_resize(struct address_pool *pool)
+static void _address_pool_resize(struct address_pool *pool)
 {
     size_t size = pool->size;
     size_t capacity = pool->capacity;
