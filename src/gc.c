@@ -28,19 +28,19 @@ void *gc_malloc(size_t size)
 
 void *gc_realloc(void *ptr, size_t size)
 {
-    void *tmp = realloc(ptr, size);
+    void *ret = realloc(ptr, size);
 
-    if (!tmp) {
+    if (!ret) {
         fprintf(stderr, "gc realloc failed");
         assert(0);
     }
 
-    if (tmp != ptr) {
+    if (ret != ptr) {
         gc_ptr_deregister(ptr); // deregister
-        gc_ptr_register(tmp);
+        gc_ptr_register(ret);
     }
 
-    return tmp;
+    return ret;
 }
 
 void gc_free(void *ptr)
@@ -69,7 +69,7 @@ void gc_ptr_deregister(void *ptr)
 
     // TODO: find a way to search in O(1)
     for (i = 0; i < obj_pool->size; i++) {
-        if(!get_bit_invalid(addr) && addr == addrs[i]) {
+        if(addr_valid(addr) && addr == addrs[i]) {
             break;
         }
     }
