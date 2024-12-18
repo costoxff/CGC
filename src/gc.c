@@ -1,10 +1,11 @@
-#include "gc.h"
-#include "addrpool.h"
 #include <assert.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
+
+#include "gc.h"
+#include "addrpool.h"
 
 static struct address_pool *obj_pool = NULL;
 // static void **addr_pool = NULL;

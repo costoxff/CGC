@@ -1,5 +1,5 @@
-#ifndef __ADDR_POOL_H__
-#define __ADDR_POOL_H__
+#ifndef CGC_ADDRPOOL_H
+#define CGC_ADDRPOOL_H
 
 #include <stddef.h>
 #include <stdlib.h>

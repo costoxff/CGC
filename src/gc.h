@@ -1,5 +1,5 @@
-#ifndef __GARBAGE_COLLECTION_H__
-#define __GARBAGE_COLLECTION_H__
+#ifndef CGC_GC_H
+#define CGC_GC_H
 
 #include <stddef.h>
 
