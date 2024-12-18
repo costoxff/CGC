@@ -1,4 +1,5 @@
 add_library(libcgc SHARED)
+#add_library(libcgc OBJECT)
 
 target_sources(libcgc
     PRIVATE
