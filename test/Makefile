@@ -1,8 +1,9 @@
 CC ?= gcc
 CFLAGS = -g -Wall
 
-SRC = ../src/
-INC = ../src/
+PWD := $(shell pwd)
+SRC = $(PWD)/../src/
+INC = $(PWD)../src/
 
 GC_TEST_DEP = $(addprefix $(SRC), gc.c gc.h addrpool.h)
 
